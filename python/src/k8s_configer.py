@@ -126,40 +126,5 @@ class Configer:
 
 
 if __name__ == "__main__":
-    my_configer = Configer(context="kind-kind")
+    my_configer = Configer(context=None)
     print(my_configer.list_all_namespace())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    # res = list_all_namespace()
-    # res = list_all_service()
-    # res = list_all_deployment()
-    # print(res)
-    # upgrade_deployment_replicas(replicas=10)
-    # upgrade_deployment_node_name(node_name="k8s04")
-    # upgrade_deployment_affinity(name="app3", namespace="satellite", node_name_list=["k8s08","k8s06"])
-
-    # get_deployment_annotations(name="app1", namespace="satellite")
-
-    # print(list_namespace_deployment(namespace="satellite"))
-
-    upgrade_deployment_affinity(name="app2", namespace="satellite", node_name_list=["edge-1","edge-0"])
