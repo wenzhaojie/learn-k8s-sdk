@@ -1,8 +1,6 @@
 from kubernetes import client, config
 from typing import List
 
-api = client.AppsV1Api()
-core = client.CoreV1Api()
 
 class Configer:
     def __init__(self, kubeconfig_path="~/.kube/config", context=None):
@@ -14,45 +12,48 @@ class Configer:
             print(e)
             config.load_incluster_config()
             print(f"成功从incluster加载!")
+
+        self.api = client.AppsV1Api()
+        self.core = client.CoreV1Api()
         pass
 
     # 列举所有的namespace名称
-    def list_all_namespace(self) -> List:
+    def get_all_namespace(self) -> List:
         ret = []
-        for ns in core.list_namespace().items:
+        for ns in self.core.list_namespace().items:
             ret.append(ns.metadata.name)
         return ret
 
     # 列举所有的service名称
-    def list_all_service(self) -> List:
+    def get_all_service(self) -> List:
         result = []
-        ret = core.list_service_for_all_namespaces(watch=False)
+        ret = self.core.list_service_for_all_namespaces(watch=False)
         for i in ret.items:
             info = {'kind': i.kind, 'namespace': i.metadata.namespace, 'name': i.metadata.name, 'ip': i.spec.cluster_ip,
                     'ports': i.spec.ports}
             result.append(info)
         return result
 
-    def list_all_pod(self):
+    def get_all_pod(self):
         result = []
-        ret = core.list_pod_for_all_namespaces(watch=False)
+        ret = self.core.list_pod_for_all_namespaces(watch=False)
         for i in ret.items:
             info = {'pod_ip': i.status.pod_ip, 'namespace': i.metadata.namespace, 'name': i.metadata.name}
             result.append(info)
         return result
 
-    def list_all_deployment(self):
+    def get_all_deployment(self):
         result = []
-        ret = api.list_deployment_for_all_namespaces(watch=False)
+        ret = self.api.list_deployment_for_all_namespaces(watch=False)
         for i in ret.items:
             images = [x.image for x in i.spec.template.spec.containers]
             info = {'namespace': i.metadata.namespace, 'name': i.metadata.name, 'images': images}
             result.append(info)
         return result
 
-    def list_namespace_deployment(self, namespace):
+    def get_namespace_deployment(self, namespace):
         result = []
-        ret = api.list_namespaced_deployment(namespace, watch=False)
+        ret = self.api.list_namespaced_deployment(namespace, watch=False)
         for i in ret.items:
             images = [x.image for x in i.spec.template.spec.containers]
             info = {'namespace': i.metadata.namespace, 'name': i.metadata.name, 'images': images}
@@ -61,37 +62,31 @@ class Configer:
 
     def upgrade_deployment_replicas(self, name="helloworld-ms", namespace="default", replicas=2):
         # read deployment
-        body = api.read_namespaced_deployment(name, namespace)
-        # print(f"body:{body}")
+        body = self.api.read_namespaced_deployment(name, namespace)
         # 修改 replicas
         body.spec.replicas = replicas
         try:
-            api.patch_namespaced_deployment(name, namespace, body)
-            # api.replace_namespaced_deployment(name, namespace, body)
+            self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            # print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
             pass
 
     def upgrade_deployment_node_name(self, name="nginx-deployment", namespace="nginx", node_name="k8s02"):
         # read deployment
-        body = api.read_namespaced_deployment(name, namespace)
-        # print(f"body:{body}")
+        body = self.api.read_namespaced_deployment(name, namespace)
         body.spec.template.spec.node_name = node_name
         body.spec.template.spec.affinity = None
         try:
-            api.patch_namespaced_deployment(name, namespace, body)
+            self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            # print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
             pass
 
     def upgrade_deployment_affinity(self, name="nginx-deployment", namespace="nginx", node_name_list=None):
         # read deployment
         if node_name_list is None:
             node_name_list = ["k8s02", "k8s04"]
-        body = api.read_namespaced_deployment(name, namespace)
-        # print(f"body:{body}")
-        # print(type(body.spec.template.spec.affinity))
-        # print(body.spec.template.spec.affinity)
+        body = self.api.read_namespaced_deployment(name, namespace)
 
         # create affinity objects
         terms = client.models.V1NodeSelectorTerm(
@@ -112,19 +107,29 @@ class Configer:
         # replace affinity in the deployment object
         body.spec.template.spec.affinity = affinity
         try:
-            res = api.replace_namespaced_deployment(name, namespace, body)
+            res = self.api.replace_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            # print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
             pass
 
     # 获得deploymemt中affinity的字段
     def get_deployment_annotations(self, name, namespace):
         # read deployment
-        body = api.read_namespaced_deployment(name, namespace)
+        body = self.api.read_namespaced_deployment(name, namespace)
         annotations = body.spec.template.metadata.annotations
         return annotations
+
+    # 获得deployment中资源限制
+    def get_deployment_resource_limit(self, name, namespace, container_index=0):
+        body = self.api.read_namespaced_deployment(name, namespace)
+        container = body.spec.template.spec.containers[container_index]
+        cpu_limit = container.resources.limits["cpu"]
+        mem_limit = container.resources.limits["memory"]
+        print(f"cpu_limit:{cpu_limit}")
+        print(f"mem_limit:{mem_limit}")
 
 
 if __name__ == "__main__":
     my_configer = Configer(context=None)
-    print(my_configer.list_all_namespace())
+    print(my_configer.get_all_namespace())
+    my_configer.get_deployment_resource_limit(namespace="default", name="app")
