@@ -1,6 +1,6 @@
 from kubernetes import client, config
 from typing import List
-
+import re
 
 class Configer:
     def __init__(self, kubeconfig_path="~/.kube/config", context=None):
@@ -119,17 +119,95 @@ class Configer:
         annotations = body.spec.template.metadata.annotations
         return annotations
 
-    # 获得deployment中资源限制
-    def get_deployment_resource_limit(self, name, namespace, container_index=0):
+    def get_deployment_resource(self, name, namespace, container_index=0):
+        '''获得deployment中资源限制
+
+        :param name: deployment的名称
+        :param namespace: deployment所在的namespace名称
+        :param
+        :param container_index: 配置的是第几个容器，默认配置第一个容器
+        :return: deployment的资源字典，包含以下几个key:cpu_limit,mem_limit,cpu_requests,mem_requests
+        '''
         body = self.api.read_namespaced_deployment(name, namespace)
         container = body.spec.template.spec.containers[container_index]
         cpu_limit = container.resources.limits["cpu"]
         mem_limit = container.resources.limits["memory"]
-        print(f"cpu_limit:{cpu_limit}")
-        print(f"mem_limit:{mem_limit}")
+        cpu_requests = container.resources.requests["cpu"]
+        mem_requests = container.resources.requests["memory"]
+
+        resource = {
+            "cpu_limit":resource_unit_convert(cpu_limit),
+            "mem_limit":resource_unit_convert(mem_limit),
+            "cpu_requests":resource_unit_convert(cpu_requests),
+            "mem_requests":resource_unit_convert(mem_requests)
+        }
+        return resource
+
+    def update_deployment_resource(self, name, namespace, resource, container_index=0):
+        '''更新deployment中资源限制
+
+        :param name: deployment的名称
+        :param namespace: deployment所在的namespace名称
+        :param resource: deployment希望设置的资源字典，包含以下几个key:cpu_limit,mem_limit,cpu_requests,mem_requests，缺一不可
+        :param container_index: 配置的是第几个容器，默认配置第一个容器
+        :return: 没有返回值
+        '''
+        body = self.api.read_namespaced_deployment(name, namespace)
+        container = body.spec.template.spec.containers[container_index]
+
+        cpu_limit = resource["cpu_limit"]
+        mem_limit = resource["mem_limit"]
+        cpu_requests = resource["cpu_requests"]
+        mem_requests = resource["mem_requests"]
+
+        container.resources.limits["cpu"] = cpu_limit
+        container.resources.limits["memory"] = str(mem_limit)+"Mi"
+        container.resources.requests["cpu"] = cpu_requests
+        container.resources.requests["memory"] = str(mem_requests)+"Mi"
+        body.spec.template.spec.containers[container_index] = container
+
+        # 更新资源限制
+        try:
+            self.api.replace_namespaced_deployment(name, namespace, body)
+        except Exception as e:
+            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            pass
+
+
+# 用于处理不同资源限制单位的转换
+def resource_unit_convert(str:str):
+    # 利用正则表达式过滤出字母
+    "[^(A-Za-z)]"
+    unit = "".join(re.findall("[(A-Za-z)]", str))
+    num = "".join(re.findall("[^(A-Za-z)]", str))
+
+    # 判断单位类型，并转换
+    if unit == "Mi":
+        res = int(num)
+    elif unit == "Gi":
+        res = 1024*int(num)
+    elif unit == "":
+        res = int(num)
+    elif unit == "m":
+        res = int(num)/1000
+    else:
+        print(f"请检查输入的数据:{str}是否正确")
+        res = None
+    return res
 
 
 if __name__ == "__main__":
     my_configer = Configer(context=None)
     print(my_configer.get_all_namespace())
-    my_configer.get_deployment_resource_limit(namespace="default", name="app")
+    print(my_configer.get_deployment_resource(namespace="default", name="app"))
+
+    resource = {
+        "cpu_limit":2.5,
+        "mem_limit":2000,
+        "cpu_requests":1.3,
+        "mem_requests":1000
+    }
+    my_configer.update_deployment_resource(namespace="default", name="app", resource=resource)
+
+    print(my_configer.get_deployment_resource(namespace="default", name="app"))
+

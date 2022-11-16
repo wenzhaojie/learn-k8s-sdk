@@ -24,6 +24,6 @@ spec:
             memory: 2000Mi
           requests:
             cpu: "2"
-            memory: 1000Mi
+            memory: 1Gi # 单位可以是 Mi Gi
         ports:
         - containerPort: 80
