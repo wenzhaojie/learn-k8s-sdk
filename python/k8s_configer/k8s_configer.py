@@ -42,6 +42,19 @@ class Configer:
             result.append(info)
         return result
 
+    def get_namespace_all_pod(self, namespace):
+        result = []
+        ret = self.core.list_namespaced_pod(namespace=namespace, watch=False)
+        for i in ret.items:
+            info = {
+                'name': i.metadata.name,
+                'namespace': i.metadata.namespace, 
+                'phase': i.status.phase,
+                'node_name': i.spec.node_name
+            }
+            result.append(info)
+        return result
+
     def get_all_deployment(self):
         result = []
         ret = self.api.list_deployment_for_all_namespaces(watch=False)
@@ -60,12 +73,20 @@ class Configer:
             result.append(info)
         return result
 
-    def get_deployment_replicas(self, name="helloworld-ms", namespace="default"):
+    def get_deployment_replicas(self, name="helloworld-ms", namespace="default", get_type="ready"):
         body = self.api.read_namespaced_deployment(name, namespace)
-        replicas = body.status.ready_replicas
-        if replicas == None:
-            replicas = 0
-        return replicas
+        if get_type == "ready":
+            ready_replicas = body.status.ready_replicas
+            if ready_replicas == None:
+                ready_replicas = 0
+            return ready_replicas
+        elif get_type == "unavailable":
+            unavailable_replicas = body.status.unavailable_replicas
+            if unavailable_replicas == None:
+                unavailable_replicas = 0
+            return unavailable_replicas
+        else:
+            print(f"get_type需要为ready或者unavailable")
 
     def upgrade_deployment_replicas(self, name="helloworld-ms", namespace="default", replicas=2):
         # read deployment
@@ -236,8 +257,14 @@ def test_update_deployment_affinity():
     print(my_configer.get_deployment_affinity(name="app", namespace="default"))
 
 
+def test_namespace_all_pod():
+    my_configer = Configer(context=None)
+    print(my_configer.get_namespace_all_pod(namespace="default"))
+
+
 if __name__ == "__main__":
     # test_get_deployment_status()
     # test_resource_update()
-    test_update_deployment_affinity()
+    # test_update_deployment_affinity()
+    test_namespace_all_pod()
     pass
