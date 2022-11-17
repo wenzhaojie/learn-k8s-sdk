@@ -60,6 +60,13 @@ class Configer:
             result.append(info)
         return result
 
+    def get_deployment_replicas(self, name="helloworld-ms", namespace="default"):
+        body = self.api.read_namespaced_deployment(name, namespace)
+        replicas = body.status.ready_replicas
+        if replicas == None:
+            replicas = 0
+        return replicas
+
     def upgrade_deployment_replicas(self, name="helloworld-ms", namespace="default", replicas=2):
         # read deployment
         body = self.api.read_namespaced_deployment(name, namespace)
@@ -81,6 +88,12 @@ class Configer:
         except Exception as e:
             print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
             pass
+
+    def get_deployment_affinity(self, name="nginx-deployment", namespace="nginx"):
+        body = self.api.read_namespaced_deployment(name, namespace)
+        affinity = body.spec.template.spec.affinity
+        return affinity
+
 
     def upgrade_deployment_affinity(self, name="nginx-deployment", namespace="nginx", node_name_list=None):
         # read deployment
@@ -196,18 +209,35 @@ def resource_unit_convert(str:str):
     return res
 
 
-if __name__ == "__main__":
+def test_resource_update():
     my_configer = Configer(context=None)
     print(my_configer.get_all_namespace())
-    print(my_configer.get_deployment_resource(namespace="default", name="app"))
-
+    print(my_configer.get_deployment_resource(name="app", namespace="default"))
     resource = {
-        "cpu_limit":2.5,
-        "mem_limit":2000,
-        "cpu_requests":1.3,
-        "mem_requests":1000
+        "cpu_limit": 2.5,
+        "mem_limit": 2000,
+        "cpu_requests": 0.1,
+        "mem_requests": 200
     }
-    my_configer.update_deployment_resource(namespace="default", name="app", resource=resource)
+    my_configer.update_deployment_resource(name="app", namespace="default", resource=resource)
+    print(my_configer.get_deployment_resource(name="app", namespace="default"))
 
-    print(my_configer.get_deployment_resource(namespace="default", name="app"))
 
+
+def test_get_deployment_status():
+    my_configer = Configer(context=None)
+    print(my_configer.get_deployment_replicas(name="app", namespace="default"))
+    pass
+
+
+def test_update_deployment_affinity():
+    my_configer = Configer(context=None)
+    my_configer.upgrade_deployment_affinity(name="app", namespace="default", node_name_list=["kind-control-plane"])
+    print(my_configer.get_deployment_affinity(name="app", namespace="default"))
+
+
+if __name__ == "__main__":
+    # test_get_deployment_status()
+    # test_resource_update()
+    test_update_deployment_affinity()
+    pass

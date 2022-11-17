@@ -23,7 +23,7 @@ spec:
             cpu: "3.5"
             memory: 2000Mi
           requests:
-            cpu: "2"
-            memory: 1Gi # 单位可以是 Mi Gi
+            cpu: "0.1"
+            memory: 200Mi # 单位可以是 Mi Gi
         ports:
         - containerPort: 80
