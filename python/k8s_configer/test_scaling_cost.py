@@ -152,6 +152,34 @@ def do_exp():
     )
 
 
+def do_exp_2():
+    name = "app"
+    namespace = "default"
+    init_replicas_list = [0]
+    target_replicas_list = [i for i in range(0,4,33)]
+    resource_list = utils.generate_resource_list(cpu_list=[0.1,1,2,3], memory_list=[128,512,2048,3072])
+    node_name_list_list = [
+        ["k8s02"],
+        ["k8s02", "k8s03"], 
+        ["k8s02", "k8s03","k8s04"], 
+        ["k8s02", "k8s03", "k8s04", "k8s05"],
+        ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06"],
+        ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
+        ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
+    ]
+    is_wait_until_no_unavailable = False
+
+    exp_different_replicas_resource_node(
+        name=name,
+        namespace=namespace,
+        init_replicas_list=init_replicas_list,
+        target_replicas_list=target_replicas_list,
+        resource_list=resource_list,
+        node_name_list_list=node_name_list_list,
+        is_wait_until_no_unavailable=is_wait_until_no_unavailable
+    )
+
+
 
 
 if __name__ == "__main__":
