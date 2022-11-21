@@ -28,7 +28,6 @@ def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30):
 
 
 
-
 def update_deployment_replicas_until_finished(name, namespace, replicas, timeout=30, is_wait_until_no_unavailable=False) -> float:
     start_t = time.time()
     my_configer.upgrade_deployment_replicas(name=name, namespace=namespace, replicas=replicas)
@@ -50,7 +49,6 @@ def update_deployment_replicas_until_finished(name, namespace, replicas, timeout
     end_t = time.time()
     scaling_t = end_t - start_t
     return scaling_t
-
 
 
 
@@ -156,8 +154,8 @@ def do_exp_2():
     name = "app"
     namespace = "default"
     init_replicas_list = [0]
-    target_replicas_list = [i for i in range(0,4,33)]
-    resource_list = utils.generate_resource_list(cpu_list=[0.1,1,2,3], memory_list=[128,512,2048,3072])
+    target_replicas_list = [i for i in range(0,65)]
+    resource_list = utils.generate_resource_list(cpu_list=[0.1,0.35,1,2], memory_list=[128,256,512,2048])
     node_name_list_list = [
         ["k8s02"],
         ["k8s02", "k8s03"], 
@@ -176,7 +174,7 @@ def do_exp_2():
         target_replicas_list=target_replicas_list,
         resource_list=resource_list,
         node_name_list_list=node_name_list_list,
-        is_wait_until_no_unavailable=is_wait_until_no_unavailable
+        is_wait_until_no_unavailable=is_wait_until_no_unavailable,
     )
 
 
@@ -184,4 +182,4 @@ def do_exp_2():
 
 if __name__ == "__main__":
     # print(scaling_deployment(name="app", namespace="default", init_replicas=0, target_replicas=5))
-    do_exp()
+    do_exp_2()
