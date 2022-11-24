@@ -213,16 +213,16 @@ def do_exp_4():
     name = "app"
     namespace = "default"
     init_replicas_list = [0]
-    target_replicas_list = [i for i in range(0,33)]
-    resource_list = utils.generate_resource_list(cpu_list=[0.1,0.1,0.1,0.1], memory_list=[64,64,64,64])
+    target_replicas_list = [i for i in range(0,21)]
+    resource_list = utils.generate_resource_list(cpu_list=[0.1], memory_list=[64])
     node_name_list_list = [
-        ["k8s02"],
-        ["k8s02", "k8s03"], 
+        # ["k8s02"],
+        # ["k8s02", "k8s03"], 
         ["k8s02", "k8s03","k8s04"], 
         # ["k8s02", "k8s03", "k8s04", "k8s05"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
-        # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
+        ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
     is_wait_until_no_unavailable = False
 
@@ -234,7 +234,7 @@ def do_exp_4():
         resource_list=resource_list,
         node_name_list_list=node_name_list_list,
         is_wait_until_no_unavailable=is_wait_until_no_unavailable,
-        repeat=10
+        repeat=16
     )
 
 

@@ -32,8 +32,6 @@ class Pyplot_config:
         
 
 
-
-
 class Plotter(Pyplot_config):
     def __init__(self, figsize=(20,6), fontsize=30):
         super().__init__(figsize=figsize, fontsize=fontsize)
@@ -194,7 +192,62 @@ class Plotter(Pyplot_config):
         if is_show:
             plt.show()
         pass
+
+    # 绘制 box 图
+    def plot_boxs(self, x=None, box_data_list=None, box_label_list=None, x_label="Replicas", y_label="Cost", legend_title=None, legend_loc="best", save_root="/home/wzj/GiteeProjects/faas-scaler/results", filename="demo.png", is_show=False):
+
+        fig = plt.figure(figsize=(8,6), dpi=300)
+        ax = fig.add_subplot(111)
+        ax.yaxis.grid(linestyle='dashed')
+        ax.set_ylabel(y_label, fontsize=self.label_size)
+        ax.set_xlabel(x_label, fontsize=self.label_size)
+
+        width = 0.2
+        interval = width * 1.25
+        space = interval * 3
+        interval_xtick = interval * (len(box_label_list) - 1) + space
+        position = np.arange(1, 1 + interval_xtick * len(x), interval_xtick)
+
+        colors = ['red', 'darkblue', 'limegreen']
+        facecolors = ['pink', 'lightblue', 'lightgreen']
+        boxes = []
+
+        for i in range(len(box_label_list)):
+            box_data = box_data_list[i]
+            bp = ax.boxplot(box_data, showmeans=False, showfliers=False, positions=[pos+interval*i for pos in position], widths=width, patch_artist=True)
+            boxes.append(bp['boxes'][0])
+            color = colors[i]
+            facecolor = facecolors[i]
+            for b in bp['boxes']:
+                b.set(color=color)
+                b.set(facecolor=facecolor)
+                b.set(linewidth=2)
+            for slo in bp['medians']:
+                slo.set(color=color, linewidth=2)
+            for c in bp['caps']:
+                c.set(color=color, linewidth=2)
+            for w in bp['whiskers']:
+                w.set(color=color, linewidth=1.5, linestyle=':')
+
+
+        offset = interval * (len(box_label_list) - 1) / 2
+        ax.set_xticks([pos+offset for pos in position])
+        ax.set_xticklabels(x, fontsize=14, rotation=0)
+        ax.tick_params(axis='both', which='major', labelsize=14)
+
+        plt.xticks(size=self.label_size)
+        plt.yticks(size=self.label_size)
         
+        plt.legend(boxes, box_label_list, fontsize=self.label_size)
+        plt.tight_layout()
+        savepath = os.path.join(save_root, filename)
+        print(f"图片保存到:{savepath}")
+        plt.savefig(savepath)
+        plt.show()
+
+
+
+
     
 
 if __name__ == "__main__":
@@ -206,4 +259,14 @@ if __name__ == "__main__":
     y4 = [1,2,3,4,2,4,6,1,5,1]
     y5 = [0,2,3,4,2,1,6,8,5,1]
 
-    my_plotter.plot_lines(y_list=[y1,y2,y3,y4,y5], y_label_list=["y1","y2","y3","y4","y5"], title="This is a demo!", save_root="./")
+    # my_plotter.plot_lines(y_list=[y1,y2,y3,y4,y5], y_label_list=["y1","y2","y3","y4","y5"], title="This is a demo!", save_root="./")
+
+    my_plotter.plot_boxs(
+        x=[0,1,2,3],
+        box_data_list=[[y1,y2,y3,y4], [y2, y3, y4, y5]],
+        box_label_list=["1234", "2345"],
+        x_label="x",
+        y_label="y",
+        save_root="./"
+    )
+
