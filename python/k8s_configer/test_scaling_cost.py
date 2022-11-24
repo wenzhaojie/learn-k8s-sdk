@@ -11,7 +11,7 @@ strftime("%Y-%m-%d-%H-%M-%S", localtime())
 my_configer = Configer()
 
 
-def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30):
+def wait_deployment_replicas_until_no_unavailable(name, namespace, query_interval=0.1, timeout=30):
     start_t = time.time()
     # 等待
     while True:
@@ -21,26 +21,26 @@ def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30):
         if time.time() - start_t > timeout:
             print(f"wait_deployment_replicas_until_no_unavailable 超时!")
             return float("NaN")
-        time.sleep(0.1)
+        time.sleep(query_interval)
     end_t = time.time()
     wait_t = end_t - start_t
     return wait_t
 
 
 
-def update_deployment_replicas_until_finished(name, namespace, replicas, timeout=30, is_wait_until_no_unavailable=False) -> float:
+def update_deployment_replicas_until_finished(name, namespace, replicas, query_interval=0.1, timeout=30, is_wait_until_no_unavailable=False) -> float:
     start_t = time.time()
     my_configer.upgrade_deployment_replicas(name=name, namespace=namespace, replicas=replicas)
     # 等待
     while True:
-        current_available_replicas = my_configer.get_deployment_replicas(name=name, namespace=namespace, get_type="ready")
+        current_ready_replicas = my_configer.get_deployment_replicas(name=name, namespace=namespace, get_type="ready")
         # print(f"当前replicas:{current_available_replicas}")
-        if current_available_replicas == replicas:
+        if current_ready_replicas == replicas:
             break
         if time.time() - start_t > timeout:
             print(f"update_deployment_replicas_until_finished 超时!")
             return float("NaN")
-        time.sleep(0.1)
+        time.sleep(query_interval)
     # 是否等待彻底完成scaling
     if is_wait_until_no_unavailable:
         wait_t = wait_deployment_replicas_until_no_unavailable(name=name, namespace=namespace, timeout=30)
@@ -61,10 +61,9 @@ def scaling_deployment(name, namespace, init_replicas, target_replicas, is_wait_
         return scaling_t
     else:
         # # 等待彻底完成scaling
-        # wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30)
-        
+        if is_wait_until_no_unavailable:
+            wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30)
         scaling_t = update_deployment_replicas_until_finished(name=name, namespace=namespace, replicas=target_replicas, is_wait_until_no_unavailable=False)
-        
         print(f"replicas从{init_replicas}到{target_replicas},花费{scaling_t}秒!")
         return scaling_t
 
@@ -107,7 +106,6 @@ def exp_different_replicas_resource_node(name, namespace, init_replicas_list, ta
                     time.sleep(10)
                 else:
                     time.sleep(scaling_t + 2)
-                
 
                 if math.isnan(wait_t):
                     print(f"清零失败!")

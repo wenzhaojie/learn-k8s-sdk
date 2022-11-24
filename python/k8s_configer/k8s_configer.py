@@ -5,10 +5,10 @@ import re
 class Configer:
     def __init__(self, kubeconfig_path="~/.kube/config", context=None):
         try:
+            # 加载kubeconfig文件
             config.load_kube_config(config_file=kubeconfig_path, context=context)
             print(f"成功从{kubeconfig_path}加载!")
-        except Exception as e:
-            print(f"获取kubeconfig文件失败")
+        except Exception as e: # 如果没有成功加载文件，则可以求助于Pod是否具有k8s集群的权限
             print(e)
             config.load_incluster_config()
             print(f"成功从incluster加载!")
@@ -17,8 +17,11 @@ class Configer:
         self.core = client.CoreV1Api()
         pass
 
-    # 列举所有的namespace名称
     def get_all_namespace(self) -> List:
+        """列举所有的namespace名称
+
+        :return: 所有的namespace的名称list
+        """
         ret = []
         for ns in self.core.list_namespace().items:
             ret.append(ns.metadata.name)
@@ -26,6 +29,10 @@ class Configer:
 
     # 列举所有的service名称
     def get_all_service(self) -> List:
+        """列举所有的service名称
+
+        :return: 所有所有的service名称list
+        """
         result = []
         ret = self.core.list_service_for_all_namespaces(watch=False)
         for i in ret.items:
@@ -34,7 +41,11 @@ class Configer:
             result.append(info)
         return result
 
-    def get_all_pod(self):
+    def get_all_pod(self) -> List:
+        """列举所有的pod信息
+
+        :return: pod信息的dict list
+        """
         result = []
         ret = self.core.list_pod_for_all_namespaces(watch=False)
         for i in ret.items:
@@ -42,7 +53,12 @@ class Configer:
             result.append(info)
         return result
 
-    def get_namespace_all_pod(self, namespace):
+    def get_namespace_all_pod(self, namespace: str) -> List:
+        """列举namespace所有的pod信息
+
+        :param namespace: k8s 命名空间
+        :return: pod信息的dict list
+        """
         result = []
         ret = self.core.list_namespaced_pod(namespace=namespace, watch=False)
         for i in ret.items:
@@ -55,7 +71,11 @@ class Configer:
             result.append(info)
         return result
 
-    def get_all_deployment(self):
+    def get_all_deployment(self) -> List:
+        """列举所有的deployment信息
+
+        :return: 所有的deployment信息的dict list
+        """
         result = []
         ret = self.api.list_deployment_for_all_namespaces(watch=False)
         for i in ret.items:
@@ -65,6 +85,10 @@ class Configer:
         return result
 
     def get_namespace_deployment(self, namespace):
+        """列举namespace的deployment信息
+
+        :return: namespace的deployment信息的dict list
+        """
         result = []
         ret = self.api.list_namespaced_deployment(namespace, watch=False)
         for i in ret.items:
@@ -74,6 +98,11 @@ class Configer:
         return result
 
     def get_deployment_replicas(self, name="helloworld-ms", namespace="default", get_type="ready"):
+        """列举namespace的deployment的replicas数量
+
+        :param get_type: ready表示ready状态的replicas数，unavailable表示unavailable状态的replicas数
+        :return: namespace的deployment的replicas数量
+        """
         body = self.api.read_namespaced_deployment(name, namespace)
         if get_type == "ready":
             ready_replicas = body.status.ready_replicas
@@ -89,6 +118,11 @@ class Configer:
             print(f"get_type需要为ready或者unavailable")
 
     def upgrade_deployment_replicas(self, name="helloworld-ms", namespace="default", replicas=2):
+        """更新namespace的deployment的replicas数量
+
+        :param replicas: replicas数
+        :return: None
+        """
         # read deployment
         body = self.api.read_namespaced_deployment(name, namespace)
         # 修改 replicas
@@ -96,10 +130,15 @@ class Configer:
         try:
             self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n" % e)
             pass
 
     def upgrade_deployment_node_name(self, name="nginx-deployment", namespace="nginx", node_name="k8s02"):
+        """更新namespace的deployment的replicas数量
+
+        :param node_name: 调度到的节点node_name
+        :return: None
+        """
         # read deployment
         body = self.api.read_namespaced_deployment(name, namespace)
         body.spec.template.spec.node_name = node_name
@@ -107,16 +146,24 @@ class Configer:
         try:
             self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n" % e)
             pass
 
     def get_deployment_affinity(self, name="nginx-deployment", namespace="nginx"):
+        """更新namespace的deployment的replicas数量
+
+        :return: None
+        """
         body = self.api.read_namespaced_deployment(name, namespace)
         affinity = body.spec.template.spec.affinity
         return affinity
 
 
     def upgrade_deployment_affinity(self, name="nginx-deployment", namespace="nginx", node_name_list=None):
+        """更新namespace的deployment的affinity信息
+
+        :return: None
+        """
         # read deployment
         if node_name_list is None:
             node_name_list = ["k8s02", "k8s04"]
@@ -141,24 +188,26 @@ class Configer:
         # replace affinity in the deployment object
         body.spec.template.spec.affinity = affinity
         try:
-            res = self.api.replace_namespaced_deployment(name, namespace, body)
+            res = self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n" % e)
             pass
 
-    # 获得deploymemt中affinity的字段
     def get_deployment_annotations(self, name, namespace):
+        """获得deploymemt中affinity的字段
+
+        :return: None
+        """
         # read deployment
         body = self.api.read_namespaced_deployment(name, namespace)
         annotations = body.spec.template.metadata.annotations
         return annotations
 
-    def get_deployment_resource(self, name, namespace, container_index=0):
+    def get_deployment_resource(self, name, namespace, container_index=0) -> dict:
         '''获得deployment中资源限制
 
         :param name: deployment的名称
         :param namespace: deployment所在的namespace名称
-        :param
         :param container_index: 配置的是第几个容器，默认配置第一个容器
         :return: deployment的资源字典，包含以下几个key:cpu_limit,mem_limit,cpu_requests,mem_requests
         '''
@@ -202,14 +251,14 @@ class Configer:
 
         # 更新资源限制
         try:
-            self.api.replace_namespaced_deployment(name, namespace, body)
+            self.api.patch_namespaced_deployment(name, namespace, body)
         except Exception as e:
-            print("Exception when calling AppsV1Api->replace_namespaced_deployment: %s\n" % e)
+            print("Exception when calling AppsV1Api->patch_namespaced_deployment: %s\n" % e)
             pass
 
 
 # 用于处理不同资源限制单位的转换
-def resource_unit_convert(str:str):
+def resource_unit_convert(str:str) -> float:
     # 利用正则表达式过滤出字母
     "[^(A-Za-z)]"
     unit = "".join(re.findall("[(A-Za-z)]", str))
@@ -232,7 +281,7 @@ def resource_unit_convert(str:str):
 
 def test_resource_update():
     my_configer = Configer(context=None)
-    print(my_configer.get_all_namespace())
+    print(my_configer.get_all_namespace)
     print(my_configer.get_deployment_resource(name="app", namespace="default"))
     resource = {
         "cpu_limit": 2.5,
@@ -242,7 +291,6 @@ def test_resource_update():
     }
     my_configer.update_deployment_resource(name="app", namespace="default", resource=resource)
     print(my_configer.get_deployment_resource(name="app", namespace="default"))
-
 
 
 def test_get_deployment_status():
