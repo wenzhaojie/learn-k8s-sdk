@@ -110,7 +110,6 @@ def exp_different_replicas_resource_node(name, namespace, init_replicas_list, ta
                     else:
                         time.sleep(scaling_t + 2)
                     
-
                     if math.isnan(wait_t):
                         print(f"清零失败!")
                     else:
