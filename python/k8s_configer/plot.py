@@ -196,7 +196,7 @@ class Plotter(Pyplot_config):
     # 绘制 box 图
     def plot_boxs(self, x=None, box_data_list=None, box_label_list=None, x_label="Replicas", y_label="Cost", legend_title=None, legend_loc="best", save_root="/home/wzj/GiteeProjects/faas-scaler/results", filename="demo.png", is_show=False):
 
-        fig = plt.figure(figsize=(8,6), dpi=300)
+        fig = plt.figure(figsize=self.figsize, dpi=300)
         ax = fig.add_subplot(111)
         ax.yaxis.grid(linestyle='dashed')
         ax.set_ylabel(y_label, fontsize=self.label_size)

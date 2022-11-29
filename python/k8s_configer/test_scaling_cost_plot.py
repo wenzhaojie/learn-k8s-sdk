@@ -107,7 +107,7 @@ def plot_box_with_different_node_num(df, cpu, node_num_list, delta_replicas_list
         for delta_replicas in delta_replicas_list:
             data = data_filter(df, node_num=node_num, cpu=cpu, delta_replicas=delta_replicas)
             xx = data["delta_replicas"].mean()
-            yy = data["scaling_t"]
+            yy = data["scaling_t"].values
             x.append(xx)
             y.append(yy)
 
@@ -126,12 +126,16 @@ def plot_box_with_different_node_num(df, cpu, node_num_list, delta_replicas_list
 
     my_plotter = Plotter(figsize=(20,10))
 
+    y_0 = y_list[0][0]
+    y_1 = y_list[1][20]
+    y_2 = y_list[2][10]
+
     print(f"x:{x_list}")
-    print(f"box_data_list:{y_list.shape}")
+    print(f"box_data_list:{y_list}")
 
 
     my_plotter.plot_boxs(
-        x=x_list,
+        x=x_list[0],
         box_data_list=y_list,
         box_label_list=box_label_list,
         x_label="Replicas",
@@ -152,7 +156,7 @@ def test_data_filter(node_num=1):
     pass
 
 
-def test_plot_different_cpu(node_num=1, cpu_list=[0.1], delta_replicas_list=[i for i in range(21)], csv_path="./results/res.csv", exp_name="test"):
+def test_plot_different_cpu(node_num=1, cpu_list=[0.1], delta_replicas_list=[i for i in range(1, 21)], csv_path="./results/res.csv", exp_name="test"):
     # 加载csv文件
     df = pd.read_csv(csv_path)
     plot_different_cpu(
