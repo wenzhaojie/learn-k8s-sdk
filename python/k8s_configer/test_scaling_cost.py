@@ -265,7 +265,36 @@ def do_exp_5():
     )
 
 
+def do_exp_6():
+    name = "app"
+    namespace = "default"
+    init_replicas_list = [0]
+    target_replicas_list = [i for i in range(1,31)]
+    resource_list = utils.generate_resource_list(cpu_list=[0.1], memory_list=[64])
+    node_name_list_list = [
+        ["k8s02"],
+        ["k8s02", "k8s03"],
+        ["k8s02", "k8s03","k8s04"],
+        # ["k8s02", "k8s03", "k8s04", "k8s05"],
+        # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06"],
+        ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
+        # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
+    ]
+    is_wait_until_no_unavailable = False
+
+    exp_different_replicas_resource_node(
+        name=name,
+        namespace=namespace,
+        init_replicas_list=init_replicas_list,
+        target_replicas_list=target_replicas_list,
+        resource_list=resource_list,
+        node_name_list_list=node_name_list_list,
+        is_wait_until_no_unavailable=is_wait_until_no_unavailable,
+        repeat=20
+    )
+
+
 
 if __name__ == "__main__":
     # print(scaling_deployment(name="app", namespace="default", init_replicas=0, target_replicas=5))
-    do_exp_5()
+    do_exp_6()

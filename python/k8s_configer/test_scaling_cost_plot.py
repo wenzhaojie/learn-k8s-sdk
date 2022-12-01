@@ -176,18 +176,18 @@ def test_plot_different_node_num():
 
 def test_plot_box_with_different_node_num():
     # 加载csv文件
-    df = pd.read_csv("./results/res_2.csv")
+    df = pd.read_csv("./results/res_3.csv")
     plot_box_with_different_node_num(
         df=df,
         cpu=0.1,
-        delta_replicas_list=[i for i in range(21)],
-        exp_name="box",
-        node_num_list=[1, 3, 7],
+        delta_replicas_list=[i for i in range(1, 31)],
+        exp_name="box-12-01",
+        node_num_list=[1, 2, 3, 6],
         title="Scaling time with different number of node and scaling relicas"
     )
 
 
 if __name__ == "__main__":
-    test_plot_different_cpu()
+    # test_plot_different_cpu()
 
     test_plot_box_with_different_node_num()
