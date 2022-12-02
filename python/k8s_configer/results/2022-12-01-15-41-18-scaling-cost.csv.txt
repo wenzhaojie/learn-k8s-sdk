@@ -1,0 +1,1 @@
+{'node_name_list': ['k8s02'], 'node_num': 1, 'init_replicas': 0, 'target_replicas': 1, 'delta_replicas': 1, 'scaling_t': 2.808405876159668, 'is_wait_until_no_unavailable': False, 'cpu_limit': 0.1, 'mem_limit': 64, 'cpu_requests': 0.1, 'mem_requests': 64}
