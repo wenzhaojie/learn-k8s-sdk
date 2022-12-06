@@ -61,6 +61,7 @@ class Configer:
         """
         result = []
         ret = self.core.list_namespaced_pod(namespace=namespace, watch=False)
+        print(ret)
         for i in ret.items:
             info = {
                 'name': i.metadata.name,

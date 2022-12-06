@@ -20,6 +20,7 @@ spec:
       labels:
         app: busybox
     spec:
+      terminationGracePeriodSeconds: 0
       containers:
       - name: busybox
         image: busybox
