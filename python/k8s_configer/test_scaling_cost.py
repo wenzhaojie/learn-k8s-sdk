@@ -356,7 +356,7 @@ def do_exp_6():
 
 
 def do_exp_7():
-    name = "busybox"
+    name = "nginx"
     namespace = "default"
     init_replicas_list = [0]
     target_replicas_list = [i for i in range(1,31)]
