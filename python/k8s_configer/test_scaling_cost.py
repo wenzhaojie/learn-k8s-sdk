@@ -57,6 +57,7 @@ def exp_different_replicas_resource_node(name, namespace, init_replicas_list, ta
             my_configer.upgrade_deployment_affinity(name=name, namespace=namespace, node_name_list=node_name_list)
             for resource in resource_list:
                 my_configer.update_deployment_resource(name=name, namespace=namespace, resource=resource)
+                time.sleep(1)
                 for (init_replicas, target_replicas) in itertools.product(init_replicas_list, target_replicas_list):
                     scaling_t = scaling_deployment(name=name, namespace=namespace, init_replicas=init_replicas, target_replicas=target_replicas)
                     log_dict = {
