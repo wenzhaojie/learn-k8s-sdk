@@ -129,16 +129,6 @@ def exp_different_replicas_resource_node_with_tight_repeat(name, namespace, init
                     # 将pod清零
                     my_configer.upgrade_deployment_replicas(name=name, namespace=namespace, replicas=0)
                     wait_t = wait_deployment_replicas_until_no_unavailable(name=name, namespace=namespace, timeout=30)
-                    # 等待 terminating
-                    if math.isnan(scaling_t):
-                        time.sleep(10)
-                    else:
-                        time.sleep(scaling_t + 2)
-
-                    if math.isnan(wait_t):
-                        print(f"清零失败!")
-                    else:
-                        print(f"清零成功!")
 
         utils.write_dict_list_to_csv(
             filepath=filepath,
