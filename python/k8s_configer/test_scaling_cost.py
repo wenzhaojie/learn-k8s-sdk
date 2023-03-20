@@ -128,7 +128,7 @@ def exp_different_replicas_resource_node_with_tight_repeat(name, namespace, init
 
                     # 将pod清零
                     my_configer.upgrade_deployment_replicas(name=name, namespace=namespace, replicas=0)
-                    wait_t = wait_deployment_replicas_until_no_unavailable(name=name, namespace=namespace, timeout=30)
+                    wait_deployment_replicas_until_no_unavailable(name=name, namespace=namespace, timeout=30)
 
         utils.write_dict_list_to_csv(
             filepath=filepath,
