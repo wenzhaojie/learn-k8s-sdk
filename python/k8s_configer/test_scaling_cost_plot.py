@@ -59,7 +59,7 @@ def plot_different_cpu(df, delta_replicas_list=None, node_num=1, cpu_list=None, 
     )
 
 
-def plot_different_node_num(df, cpu=0.5, node_num_list=None, exp_name=None):
+def plot_different_node_num(df, cpu=0, node_num_list=None, exp_name=None):
     # 每一个 node_num 对应一个图例
     x_list = [] # delta_replicas
     y_list = [] # scaling_t
@@ -169,20 +169,20 @@ def test_plot_different_node_num():
     df = pd.read_csv("./results/res.csv")
     plot_different_node_num(
         df,
-        cpu=0.1,
-        node_num_list=[1,3,7],
+        cpu=0,
+        node_num_list=[1,2,4],
         exp_name="line"
     )
 
 def test_plot_box_with_different_node_num():
     # 加载csv文件
-    df = pd.read_csv("./results/res_4c16g.csv")
+    df = pd.read_csv("./results/res_8_maxSurge_100.csv")
     plot_box_with_different_node_num(
         df=df,
-        cpu=0.1,
-        delta_replicas_list=[i for i in range(1, 31)],
-        exp_name="box-4c-16g-nginx",
-        node_num_list=[1, 2, 3, 6],
+        cpu=0,
+        delta_replicas_list=[1,2,4,8,10,16,20,30,40],
+        exp_name="box-busybox",
+        node_num_list=[1, 2, 4],
         title="Scaling time with different number of node and scaling relicas"
     )
 
