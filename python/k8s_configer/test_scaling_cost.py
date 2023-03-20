@@ -329,8 +329,8 @@ def do_exp_8():
     target_replicas_list = [1,2,4,8,10,16,20,30,40]
     resource_list = utils.generate_resource_list(cpu_list=[0.1], memory_list=[32])
     node_name_list_list = [
-        # ["k8s02"],
-        # ["k8s02", "k8s03"],
+        ["k8s02"],
+        ["k8s02", "k8s03"],
         # ["k8s02", "k8s03","k8s04"],
         ["k8s02", "k8s03", "k8s04", "k8s05"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06"],
@@ -345,7 +345,7 @@ def do_exp_8():
         target_replicas_list=target_replicas_list,
         resource_list=resource_list,
         node_name_list_list=node_name_list_list,
-        repeat=1
+        repeat=3
     )
 
 
