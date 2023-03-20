@@ -31,4 +31,6 @@ def generate_resource_list(cpu_list, memory_list, shuffle=False):
                 "mem_requests": memory
             }
             resource_list.append(resource)
+    else:
+        resource_list = []
     return resource_list

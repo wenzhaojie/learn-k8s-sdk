@@ -152,7 +152,6 @@ def do_exp():
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node(
         name=name,
@@ -179,7 +178,6 @@ def do_exp_2():
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node(
         name=name,
@@ -207,7 +205,6 @@ def do_exp_3():
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node(
         name=name,
@@ -234,8 +231,6 @@ def do_exp_4():
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
-
     exp_different_replicas_resource_node(
         name=name,
         namespace=namespace,
@@ -261,7 +256,6 @@ def do_exp_5():
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node(
         name=name,
@@ -289,7 +283,6 @@ def do_exp_6():
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node(
         name=name,
@@ -317,7 +310,6 @@ def do_exp_7():
         ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07"],
         # ["k8s02", "k8s03", "k8s04", "k8s05", "k8s06", "k8s07", "k8s08"],
     ]
-    is_wait_until_no_unavailable = False
 
     exp_different_replicas_resource_node_with_tight_repeat(
         name=name,
@@ -335,7 +327,7 @@ def do_exp_8():
     namespace = "default"
     init_replicas_list = [0]
     target_replicas_list = [i for i in range(1,31)]
-    resource_list = utils.generate_resource_list(cpu_list=[0.1], memory_list=[64])
+    resource_list = utils.generate_resource_list(cpu_list=[0], memory_list=[0])
     node_name_list_list = [
         ["k8s02"],
         ["k8s02", "k8s03"],
