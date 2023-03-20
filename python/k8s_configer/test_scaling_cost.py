@@ -11,7 +11,7 @@ strftime("%Y-%m-%d-%H-%M-%S", localtime())
 my_configer = Configer()
 
 
-def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30):
+def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=60):
     start_t = time.time()
     # 等待deployment所有replicas都ready,没有unavailable的
     cmd = f"kubectl -n {namespace} rollout status deployment/{name} --timeout={timeout}s"
@@ -20,7 +20,7 @@ def wait_deployment_replicas_until_no_unavailable(name, namespace, timeout=30):
     return wait_t
 
 
-def update_deployment_replicas_until_finished(name, namespace, replicas, timeout=30) -> float:
+def update_deployment_replicas_until_finished(name, namespace, replicas, timeout=60) -> float:
     start_t = time.time()
     my_configer.upgrade_deployment_replicas(name=name, namespace=namespace, replicas=replicas)
     # 等待deployment的replicas达到replicas目标值
