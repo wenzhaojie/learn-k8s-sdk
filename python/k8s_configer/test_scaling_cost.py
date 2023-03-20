@@ -68,7 +68,6 @@ def exp_different_replicas_resource_node(name, namespace, init_replicas_list, ta
                         "target_replicas": target_replicas,
                         "delta_replicas": target_replicas - init_replicas,
                         "scaling_t": scaling_t,
-                        "is_wait_until_no_unavailable":is_wait_until_no_unavailable
                     }
                     log_dict.update(resource)
                     # 写入txt
