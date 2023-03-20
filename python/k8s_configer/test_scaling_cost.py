@@ -345,7 +345,7 @@ def do_exp_8():
         target_replicas_list=target_replicas_list,
         resource_list=resource_list,
         node_name_list_list=node_name_list_list,
-        repeat=3
+        repeat=1
     )
 
 
